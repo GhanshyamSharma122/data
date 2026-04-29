@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  # ── Backend: Flask + TinyDB ──
+  backend:
+    build: ./backend
+    container_name: finpulse-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - tinydb-data:/app/data
+    environment:
+      - TINYDB_PATH=/app/data/db.json
+    restart: unless-stopped
+
+  # ── Frontend: Nginx serving static files ──
+  frontend:
+    build: ./frontend
+    container_name: finpulse-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  tinydb-data:
+    driver: local

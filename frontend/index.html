@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Personal Finance Analytics Dashboard — track income, expenses, and savings with beautiful visualizations." />
+    <title>FinPulse — Personal Finance Analytics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+    <!-- ===== Ambient background orbs ===== -->
+    <div class="bg-orb bg-orb--1"></div>
+    <div class="bg-orb bg-orb--2"></div>
+    <div class="bg-orb bg-orb--3"></div>
+
+    <!-- ===== Header ===== -->
+    <header class="header">
+        <div class="header__brand">
+            <div class="header__logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="url(#logo-grad)"/>
+                    <path d="M9 22V14L16 10L23 14V22L16 26L9 22Z" stroke="white" stroke-width="1.5" fill="none"/>
+                    <circle cx="16" cy="17" r="3" fill="white" fill-opacity="0.9"/>
+                    <defs>
+                        <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32">
+                            <stop stop-color="#00e5c7"/>
+                            <stop offset="1" stop-color="#7c3aed"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <h1 class="header__title">FinPulse</h1>
+        </div>
+        <div class="header__actions">
+            <div class="date-filter" id="dateFilter">
+                <input type="date" id="dateFrom" class="date-input" title="From date" />
+                <span class="date-filter__sep">→</span>
+                <input type="date" id="dateTo" class="date-input" title="To date" />
+                <button class="btn btn--ghost" id="btnApplyFilter" title="Apply filter">Filter</button>
+                <button class="btn btn--ghost" id="btnClearFilter" title="Clear filter">Clear</button>
+            </div>
+            <button class="btn btn--outline" id="btnImport" title="Import transactions">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1v10M4 7l4 4 4-4M2 13h12"/></svg>
+                Import
+            </button>
+            <button class="btn btn--outline" id="btnExport" title="Export transactions">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 11V1M4 5l4-4 4 4M2 13h12"/></svg>
+                Export
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== Main Content ===== -->
+    <main class="main">
+        <!-- KPI Cards -->
+        <section class="kpi-grid" id="kpiGrid">
+            <div class="kpi-card kpi-card--income" id="kpiIncome">
+                <div class="kpi-card__icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                </div>
+                <div class="kpi-card__body">
+                    <span class="kpi-card__label">Total Income</span>
+                    <span class="kpi-card__value" id="valIncome">₹0</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-card--expense" id="kpiExpense">
+                <div class="kpi-card__icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                </div>
+                <div class="kpi-card__body">
+                    <span class="kpi-card__label">Total Expenses</span>
+                    <span class="kpi-card__value" id="valExpense">₹0</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-card--savings" id="kpiSavings">
+                <div class="kpi-card__icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div class="kpi-card__body">
+                    <span class="kpi-card__label">Net Savings</span>
+                    <span class="kpi-card__value" id="valSavings">₹0</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-card--count" id="kpiCount">
+                <div class="kpi-card__icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>
+                </div>
+                <div class="kpi-card__body">
+                    <span class="kpi-card__label">Transactions</span>
+                    <span class="kpi-card__value" id="valCount">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Row -->
+        <section class="charts-grid">
+            <div class="card chart-card" id="chartCategoryCard">
+                <h2 class="card__title">Spending by Category</h2>
+                <div class="chart-wrap">
+                    <canvas id="chartCategory"></canvas>
+                </div>
+            </div>
+            <div class="card chart-card" id="chartTrendCard">
+                <h2 class="card__title">Monthly Trend</h2>
+                <div class="chart-wrap">
+                    <canvas id="chartTrend"></canvas>
+                </div>
+            </div>
+            <div class="card chart-card" id="chartTopCard">
+                <h2 class="card__title">Top Expenses</h2>
+                <div class="chart-wrap">
+                    <canvas id="chartTop"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transactions Table + Add Form -->
+        <section class="table-section">
+            <div class="card table-card">
+                <div class="card__header">
+                    <h2 class="card__title">Recent Transactions</h2>
+                    <button class="btn btn--primary" id="btnAddTxn" title="Add new transaction">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 2v12M2 8h12"/></svg>
+                        Add Transaction
+                    </button>
+                </div>
+                <div class="table-scroll">
+                    <table class="txn-table" id="txnTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="txnTableBody">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                    <div class="empty-state" id="emptyState">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>
+                        <p>No transactions yet. Add one to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== Add Transaction Modal ===== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="addModal">
+            <div class="modal__header">
+                <h2>Add Transaction</h2>
+                <button class="modal__close" id="btnCloseModal" title="Close">&times;</button>
+            </div>
+            <form class="modal__form" id="txnForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="txnDate">Date</label>
+                        <input type="date" id="txnDate" class="form-input" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="txnAmount">Amount (₹)</label>
+                        <input type="number" id="txnAmount" class="form-input" min="0.01" step="0.01" placeholder="0.00" required />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="txnCategory">Category</label>
+                        <input type="text" id="txnCategory" class="form-input" placeholder="e.g. Groceries, Salary" required list="categorySuggestions" />
+                        <datalist id="categorySuggestions">
+                            <option value="Salary">
+                            <option value="Freelance">
+                            <option value="Groceries">
+                            <option value="Rent">
+                            <option value="Utilities">
+                            <option value="Transport">
+                            <option value="Entertainment">
+                            <option value="Food & Dining">
+                            <option value="Shopping">
+                            <option value="Health">
+                            <option value="Education">
+                            <option value="Investment">
+                            <option value="Other">
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label for="txnType">Type</label>
+                        <select id="txnType" class="form-input" required>
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txnDesc">Description</label>
+                    <input type="text" id="txnDesc" class="form-input" placeholder="Optional note…" />
+                </div>
+                <button type="submit" class="btn btn--primary btn--full" id="btnSubmitTxn">
+                    Add Transaction
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== Import Modal ===== -->
+    <div class="modal-overlay" id="importModalOverlay">
+        <div class="modal" id="importModal">
+            <div class="modal__header">
+                <h2>Import Transactions</h2>
+                <button class="modal__close" id="btnCloseImportModal" title="Close">&times;</button>
+            </div>
+            <div class="modal__form">
+                <p class="import-hint">Paste a JSON array of transactions. Each object needs: <code>date</code>, <code>amount</code>, <code>category</code>, <code>type</code>.</p>
+                <textarea id="importTextarea" class="form-input form-textarea" rows="10" placeholder='[
+  {"date": "2026-04-01", "amount": 50000, "category": "Salary", "type": "income", "description": "April pay"},
+  {"date": "2026-04-03", "amount": 2500, "category": "Groceries", "type": "expense", "description": "Weekly groceries"}
+]'></textarea>
+                <button class="btn btn--primary btn--full" id="btnSubmitImport">
+                    Import
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Toast container ===== -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
